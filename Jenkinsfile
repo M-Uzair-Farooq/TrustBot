@@ -44,11 +44,10 @@
 
         stage('Code Linting') {
             steps {
-                echo 'Running flake8 for linting...'
                 echo 'Running flake8 linting...'
                 bat '''
                 call venv\\Scripts\\activate
-                flake8 --exclude=.venv
+                flake8 --exclude=venv/
                 '''
             }
         }

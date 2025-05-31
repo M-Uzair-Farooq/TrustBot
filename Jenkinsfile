@@ -2,43 +2,56 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = "venv"   
-        FLASK_APP = "app.py"
+        VENV_DIR = "venv"
     }
 
     stages {
         stage('Clone Repo') {
             steps {
-                git branch: 'main', 
-                url: 'https://github.com/M-Uzair-Farooq/TrustBot.git'
+                echo 'Cloning Git repository...'
             }
         }
 
-        stage('Setup Environment') {
+        stage('Set Up Virtual Environment') {
             steps {
-                bat """
-                    python -m venv "%VENV_DIR%"
-                    call "%VENV_DIR%\\Scripts\\activate"
+                echo 'Creating virtual environment and installing dependencies...'
+                bat '''
+                    python -m venv %VENV_DIR%
+                    call %VENV_DIR%\\Scripts\\activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
-                """
+                '''
             }
         }
 
-        stage('Initialize DB') {
+        stage('Code Linting') {
             steps {
-                bat """
-                    call "%VENV_DIR%\\Scripts\\activate"
-                    python -c "from app import db; db.create_all()"
-                """
+                echo 'Running flake8 for linting...'
+                bat '''
+                    call %VENV_DIR%\\Scripts\\activate
+                    pip install flake8
+                    flake8 app.py
+                '''
             }
         }
 
-        stage('Run Tests') {
+        stage('Sanity Check - Flask Version') {
             steps {
-                bat 'echo "No tests yet"'
-                // call "%VENV_DIR%\\Scripts\\activate"
-                // python -m pytest
+                echo 'Checking Flask installation...'
+                bat '''
+                    call %VENV_DIR%\\Scripts\\activate
+                    flask --version
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Jenkins Build for Step 1 completed successfully!'
+        }
+        failure {
+            echo 'Jenkins Build for Step 1 failed.'
         }
     }
 }

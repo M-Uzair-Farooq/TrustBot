@@ -2,56 +2,65 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = "venv"
+        VENV_DIR = 'venv'
     }
 
     stages {
-        stage('Clone Repo') {
+        stage('Setup Python') {
             steps {
-                echo 'Cloning Git repository...'
+                echo 'Creating virtual environment...'
+                bat "python -m venv %VENV_DIR%"
             }
         }
 
-        stage('Set Up Virtual Environment') {
+        stage('Install Requirements') {
             steps {
-                echo 'Creating virtual environment and installing dependencies...'
-                bat '''
-                    python -m venv %VENV_DIR%
+                echo 'Activating venv and installing requirements...'
+                bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    pip install --upgrade pip
+                    %VENV_DIR%\\Scripts\\python.exe -m pip install --upgrade pip
                     pip install -r requirements.txt
-                '''
+                """
             }
         }
 
         stage('Code Linting') {
             steps {
                 echo 'Running flake8 for linting...'
-                bat '''
+                bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    pip install flake8
-                    flake8 app.py
-                '''
+                    %VENV_DIR%\\Scripts\\flake8 .
+                """
             }
         }
 
-        stage('Sanity Check - Flask Version') {
+        stage('Run Tests') {
             steps {
-                echo 'Checking Flask installation...'
-                bat '''
+                echo 'Running unit tests...'
+                bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    flask --version
-                '''
+                    %VENV_DIR%\\Scripts\\python.exe -m unittest discover
+                """
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
             }
         }
     }
 
     post {
-        success {
-            echo 'Jenkins Build for Step 1 completed successfully!'
-        }
-        failure {
-            echo 'Jenkins Build for Step 1 failed.'
+        always {
+            echo 'Cleaning up virtual environment...'
+            bat "rmdir /s /q %VENV_DIR%"
         }
     }
 }

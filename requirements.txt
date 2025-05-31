@@ -3,4 +3,8 @@ Flask
 Flask-SQLAlchemy
 Werkzeug
 python-dotenv
+<<<<<<< HEAD
 flake8
+=======
+flake8
+>>>>>>> a646f736b71664bd941ca88ae72212c19c9b08c8

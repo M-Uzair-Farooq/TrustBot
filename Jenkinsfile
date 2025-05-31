@@ -1,67 +1,57 @@
- pipeline {
+pipeline {
     agent any
 
     environment {
-        VENV_DIR = "venv"
+        VENV_DIR = "${WORKSPACE}\\venv"
         FLASK_APP = "app.py"
+        DATABASE_URL = "sqlite:///${WORKSPACE}\\instance\\trustbot.db"
+        SECRET_KEY = "8Wq_L6DYvP3V7HPbA-FXZr4U8OtX8mVdeDKpWnDU90M" 
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Cloning GitHub Repository...'
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/M-Uzair-Farooq/TrustBot.git',
+                        credentialsId: '' 
+                    ]]
+                ])
+                bat 'dir'  
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Setup Virtual Environment') {
             steps {
-                echo 'Creating virtual environment...'
-                bat "python -m venv ${VENV_DIR}"
-            }
-        }
-
-        stage('Install Requirements') {
-            steps {
-                echo 'Activating venv and installing requirements...'
                 bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    pip install --upgrade pip
+                    python -m venv "${VENV_DIR}"
+                    call "${VENV_DIR}\\Scripts\\activate"
+                    python -m pip install --upgrade pip
                     pip install -r requirements.txt
                 """
             }
         }
 
-        stage('Initialize DB') {
+        stage('Initialize Database') {
             steps {
-                echo 'Initializing database...'
                 bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    python -c "from app import db; db.create_all()"
+                    call "${VENV_DIR}\\Scripts\\activate"
+                    python -c "from app import create_app; app = create_app()"
+                """
+                bat """
+                    mkdir instance || echo "Instance folder exists"
                 """
             }
         }
 
-        stage('Code Linting') {
+        stage('Run Application') {
             steps {
-                echo 'Running flake8 for linting...'
                 bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    flake8 . --exclude=${VENV_DIR}
-                """
-            }
-        }
-
-        stage('Run App (Optional)') {
-            when {
-                expression { return false }
-            }
-            steps {
-                echo 'Running Flask App...'
-                bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    set FLASK_APP=app.py
-                    flask run
+                    call "${VENV_DIR}\\Scripts\\activate"
+                    python app.py
                 """
             }
         }
@@ -69,8 +59,8 @@
 
     post {
         always {
-            echo 'Cleaning up...'
-            deleteDir()
+            bat 'taskkill /F /IM python.exe /T || echo "No Python processes to kill"'
+            cleanWs()
         }
     }
 }

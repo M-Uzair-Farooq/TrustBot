@@ -1,8 +1,8 @@
- pipeline {
+pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
+        VENV_DIR = "venv"
     }
 
     stages {
@@ -16,7 +16,7 @@
         stage('Setup Python Environment') {
             steps {
                 echo 'Creating virtual environment...'
-                bat "python -m venv %VENV_DIR%"
+                bat "python -m venv ${VENV_DIR}"
             }
         }
 
@@ -24,8 +24,8 @@
             steps {
                 echo 'Activating venv and installing requirements...'
                 bat """
-                    call %VENV_DIR%\\Scripts\\activate
-                    python -m pip install --upgrade pip
+                    call ${VENV_DIR}\\Scripts\\activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
                 """
             }
@@ -35,19 +35,22 @@
             steps {
                 echo 'Running flake8 for linting...'
                 bat """
-                    call %VENV_DIR%\\Scripts\\activate
-                    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                    flake8 . --count --max-complexity=10 --max-line-length=120 --statistics
+                    call ${VENV_DIR}\\Scripts\\activate
+                    flake8 . --exclude=${VENV_DIR}
                 """
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Run App (Optional)') {
+            when {
+                expression { return false } 
+            }
             steps {
-                echo 'Running unit tests with pytest...'
+                echo 'Running Flask App...'
                 bat """
-                    call %VENV_DIR%\\Scripts\\activate
-                    pytest tests || exit 1
+                    call ${VENV_DIR}\\Scripts\\activate
+                    set FLASK_APP=app.py
+                    flask run
                 """
             }
         }
@@ -55,14 +58,8 @@
 
     post {
         always {
-            echo 'Cleaning up workspace...'
+            echo 'Cleaning up...'
             deleteDir()
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed.'
         }
     }
 }

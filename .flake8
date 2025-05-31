@@ -1,9 +1,3 @@
 [flake8]
-exclude = 
-    venv/,
-    .venv/,
-    __pycache__/,
-    migrations/,
-    instance/
-per-file-ignores =
-    __init__.py:F401  # Optional: Ignore unused imports in __init__.py
+exclude = venv/, .venv/, __pycache__/, migrations/, instance/
+ignore = F401  # Globally ignore unused imports

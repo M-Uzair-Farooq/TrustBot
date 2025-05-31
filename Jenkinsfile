@@ -47,7 +47,7 @@
                 echo 'Running flake8 linting...'
                 bat '''
                 call venv\\Scripts\\activate
-                flake8 --exclude=venv/
+                flake8 --config=.flake8 .
                 '''
             }
         }

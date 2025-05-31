@@ -1,4 +1,4 @@
-pipeline {
+ pipeline {
     agent any
 
     environment {
@@ -6,7 +6,14 @@ pipeline {
     }
 
     stages {
-        stage('Setup Python') {
+        stage('Checkout Code') {
+            steps {
+                echo 'Cloning GitHub Repository...'
+                checkout scm
+            }
+        }
+
+        stage('Setup Python Environment') {
             steps {
                 echo 'Creating virtual environment...'
                 bat "python -m venv %VENV_DIR%"
@@ -18,7 +25,7 @@ pipeline {
                 echo 'Activating venv and installing requirements...'
                 bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    %VENV_DIR%\\Scripts\\python.exe -m pip install --upgrade pip
+                    python -m pip install --upgrade pip
                     pip install -r requirements.txt
                 """
             }
@@ -29,38 +36,33 @@ pipeline {
                 echo 'Running flake8 for linting...'
                 bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    %VENV_DIR%\\Scripts\\flake8 .
+                    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                    flake8 . --count --max-complexity=10 --max-line-length=120 --statistics
                 """
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Unit Tests') {
             steps {
-                echo 'Running unit tests...'
+                echo 'Running unit tests with pytest...'
                 bat """
                     call %VENV_DIR%\\Scripts\\activate
-                    %VENV_DIR%\\Scripts\\python.exe -m unittest discover
+                    pytest tests || exit 1
                 """
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Building the project...'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
             }
         }
     }
 
     post {
         always {
-            echo 'Cleaning up virtual environment...'
-            bat "rmdir /s /q %VENV_DIR%"
+            echo 'Cleaning up workspace...'
+            deleteDir()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }

@@ -32,14 +32,14 @@
             }
         }
 
-        stage('Initialize DB') {
-            steps {
+       stage('Initialize DB') {
+             steps {
                 echo 'Initializing database...'
-                bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    python -c "from app import db; db.create_all()"
-                """
-            }
+                bat '''
+                    call venv\\Scripts\\activate
+                    python -c "from app import app, db; with app.app_context(): db.create_all()"
+                '''
+            }   
         }
 
         stage('Code Linting') {

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Enter 2FA Code</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label>Authenticator Code</label>
+        <input class="form-control" type="text" name="otp" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Verify</button>
+</form>
+{% endblock %}

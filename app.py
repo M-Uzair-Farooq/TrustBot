@@ -1,7 +1,9 @@
+from huggingface_hub import InferenceClient
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
+from huggingface_hub import InferenceClient
 import pyotp
 import qrcode
 import os
@@ -32,7 +34,7 @@ def register():
         if existing_user:
             flash('Username already exists.')
             return redirect(url_for('register'))
-        
+
         otp_secret = pyotp.random_base32()
         new_user = User(username=username,
                         password=generate_password_hash(password),
@@ -40,7 +42,8 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        totp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=username, issuer_name="TrustBot")
+        totp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(
+            name=username, issuer_name="TrustBot")
         img = qrcode.make(totp_uri)
         buffered = BytesIO()
         img.save(buffered, format="PNG")
@@ -100,6 +103,34 @@ def create_tables_once():
     if not hasattr(app, 'db_initialized'):
         db.create_all()
         app.db_initialized = True
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    if 'user_id' not in session:
+        return {"error": "Unauthorized"}, 401
+
+    user_input = request.json.get('message')
+    if not user_input:
+        return {"error": "No message provided"}, 400
+
+    try:
+        hf_token = os.getenv("HF_TOKEN")
+        client = InferenceClient(
+            token=hf_token
+        )
+
+        response = client.chat.completions.create(
+            model="mistralai/Mixtral-8x7B-Instruct-v0.1",
+            messages=[
+                {"role": "user", "content": user_input}
+            ],
+        )
+
+        reply = response.choices[0].message.content
+        return {"reply": reply}
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 
 if __name__ == '__main__':

@@ -1,39 +1,125 @@
-# TrustBot (🚧 Work in Progress)
+# 🤖 TrustBot – A Secure AI Chatbot Web Application
 
-**TrustBot** is a secure, AI-integrated web application built with Flask, focused on demonstrating core principles of secure software design and development.
+**TrustBot** is a secure, user-friendly web application that integrates modern authentication mechanisms and AI chatbot capabilities using the Hugging Face `mistralai/Mixtral-8x7B-Instruct-v0.1` model. It combines Flask, SQLAlchemy, and PyOTP for building a full-stack intelligent system with Two-Factor Authentication (2FA) and a clean, interactive UI.
 
-## 🔐 Project Goals
+---
 
-This project aims to implement:
+## 🔐 Key Features
 
-- **User Registration and Login** with strong password handling
-- **Two-Factor Authentication (2FA)** using PyOTP
-- **Secure Database Management** via SQLAlchemy
-- **Chatbot Integration** using the Hugging Face Inference API (available after login)
-- **Security Features** like CSRF protection, input sanitization, secure sessions, and rate limiting
-- **Environment Variable Management** using `.env` for sensitive data
-- **CI/CD Automation** using Jenkins for building and deploying updates from GitHub
+### ✅ User Authentication
+- Secure **User Registration** and **Login**
+- Password hashing with Werkzeug for secure storage
+- Login validations and CSRF protection
 
-## 📦 Technologies Used
+### 🔒 Two-Factor Authentication (2FA)
+- PyOTP-based Time-Based One-Time Passwords
+- QR Code generation using `qrcode` and `pyotp`
+- Users are prompted to enter a TOTP after login
 
-- Flask
-- SQLAlchemy
-- PyOTP
-- Hugging Face Inference API
-- Jenkins (for CI/CD)
-- Flask-WTF
-- python-dotenv
+### 🤖 AI-Powered Chatbot
+- Integrated with Hugging Face's `Mixtral-8x7B-Instruct-v0.1`
+- Handles conversational input dynamically via AJAX
+- Display chat history between user and TrustBot
 
-## 📌 Status
+### 🧠 Hugging Face Integration
+- Uses `InferenceClient` for real-time responses
+- Token-based secure API communication
 
-This project is currently under development. More features, testing, and improvements are on the way.
+### 📋 Dashboard
+- Clean and intuitive UI using Bootstrap
+- Users see welcome messages and chatbot interface after successful login
 
-## 🔧 Local Development
+---
 
-```bash
-git clone https://github.com/M-Uzair-Farooq/TrustBot.git
-cd TrustBot
-python -m venv venv
-source venv/bin/activate  # For Windows: venv\Scripts\activate
-pip install -r requirements.txt
-flask run
+## 🛠️ Tech Stack
+
+| Layer        | Technology Used                     |
+|--------------|-------------------------------------|
+| Backend      | Flask, SQLAlchemy                   |
+| Frontend     | HTML5, Bootstrap, JavaScript (AJAX) |
+| Authentication | Werkzeug, PyOTP, qrcode            |
+| AI/ML        | Hugging Face `mistralai/Mixtral`    |
+| Database     | SQLite (for development)            |
+
+---
+
+## 📁 Project Structure
+
+TrustBot/
+│
+├── app.py 
+├── models.py # SQLAlchemy models
+├── config.py # App configuration
+├── init_db.py # DB initialization script
+│
+├── templates/ # HTML templates
+│ ├── login.html
+│ ├── register.html
+│ ├── dashboard.html
+│
+├── static/ # CSS/JS/Images
+│ └── style.css
+│
+├── requirements.txt
+└── README.md
+
+---
+
+## 🚀 How to Run Locally
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/TrustBot.git
+   cd TrustBot
+   ```
+
+2. **Set up a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Create a .env file**:
+   ```env
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   SECRET_KEY=your_secret_key
+   HUGGINGFACE_TOKEN=your_huggingface_api_token
+   ```
+
+5. **Initialize the database**:
+   ```bash
+   python init_db.py
+   ```
+
+6. **Run the app**:
+   ```bash
+   flask run
+   ```
+
+Visit http://127.0.0.1:5000 in your browser to use TrustBot!
+
+---
+
+## 📌 Future Enhancements
+- Dockerization for portability
+- Role-based user access control
+- HTTPS with Let's Encrypt
+- MongoDB/PostgreSQL migration
+- Integration with voice AI assistants
+
+---
+
+## 📧 Contact
+
+For questions, issues, or contributions:
+
+**Author**: M Uzai Farooq  
+**Email**: m.uzair.farooq.514@gmail.com
+
+Built with ❤️ for Secure Conversational AI!

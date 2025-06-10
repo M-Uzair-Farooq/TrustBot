@@ -45,23 +45,23 @@
 
 ## 📁 Project Structure
 
+```text
 TrustBot/
+├── 🐍 app.py                 
+├── 🗃️ models.py              
+├── ⚙️ config.py               
+├── 🛢️ init_db.py             
 │
-├── app.py 
-├── models.py # SQLAlchemy models
-├── config.py # App configuration
-├── init_db.py # DB initialization script
+├── 📂 templates/              # Frontend templates
+│   ├── 🔑 login.html          
+│   ├── ✏️ register.html       
+│   └── 🖥️ dashboard.html      
 │
-├── templates/ # HTML templates
-│ ├── login.html
-│ ├── register.html
-│ ├── dashboard.html
+├── 📂 static/                 # Static assets
+│   └── 🎨 style.css           
 │
-├── static/ # CSS/JS/Images
-│ └── style.css
-│
-├── requirements.txt
-└── README.md
+├── 📜 requirements.txt        # Python dependencies
+└── 📖 README.md               
 
 ---
 
